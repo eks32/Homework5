@@ -1,0 +1,57 @@
+---
+title: "Homework5"
+author: "Eric Song"
+format: html
+editor: visual
+---
+
+```{r,include=FALSE}
+library(tidyverse)
+```
+
+## Task 1
+
+Original Code
+
+```{r}
+d1=read.table("student-mat.csv",sep=";",header=TRUE)
+d2=read.table("student-por.csv",sep=";",header=TRUE)
+d3=merge(d1,d2,by=c("school","sex","age","address","famsize","Pstatus","Medu","Fedu","Mjob","Fjob","reason","nursery","internet"))
+str(d3)
+print(nrow(d3)) # 382 students
+```
+
+Using inner join()
+
+```{r}
+joined_d3 <- inner_join(d1,d2, 
+                          by = c("school", "sex", "age", "address", "famsize", "Pstatus", 
+                                 "Medu", "Fedu", "Mjob", "Fjob", "reason", "nursery", "internet"))
+
+str(joined_d3)
+```
+
+No G1,G2,G3,Paid,absences
+
+```{r}
+final_d1 <- inner_join(d1 |>
+                         select(-G1, -G2, -G3, -paid, -absences), d2 |>
+                            select(-G1, -G2, -G3, -paid, -absences), 
+                            by = c("school", "sex", "age", "address","famsize",                             "Pstatus", "Medu", "Fedu", "Mjob", "Fjob",                                     "reason", "nursery", "internet"))
+str(final_d1)
+```
+
+Picking School,Sex, Famsize, and Reason as our categorical variables.
+```{r}
+final_d1 <- final_d1 %>%
+  mutate(
+    school = as.factor(school),
+    sex = as.factor(sex),
+    famsize = as.factor(famsize),
+    reason = as.factor(reason)
+  )
+str(final_d1)
+```
+
+## Task 2
+
