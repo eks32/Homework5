@@ -11,7 +11,7 @@ library(tidyverse)
 
 ## Task 1
 
-Original Code
+**Original Code**
 
 ```{r}
 d1=read.table("student-mat.csv",sep=";",header=TRUE)
@@ -21,27 +21,30 @@ str(d3)
 print(nrow(d3)) # 382 students
 ```
 
-Using inner join()
+**Using inner join().**   
 
 ```{r}
 joined_d3 <- inner_join(d1,d2, 
-                          by = c("school", "sex", "age", "address", "famsize", "Pstatus", 
-                                 "Medu", "Fedu", "Mjob", "Fjob", "reason", "nursery", "internet"))
+                        by = c("school", "sex", "age", "address", "famsize",                           "Pstatus","Medu", "Fedu", "Mjob", "Fjob", "reason",                            "nursery", "internet")
+                        )
 
 str(joined_d3)
 ```
 
-No G1,G2,G3,Paid,absences
+Many to many relationship warning on row 79.  Our data is also split between non joined variables.      
+
+
+
+**All variables but no G1,G2,G3,Paid, and absences.**
 
 ```{r}
 final_d1 <- inner_join(d1 |>
                          select(-G1, -G2, -G3, -paid, -absences), d2 |>
-                            select(-G1, -G2, -G3, -paid, -absences), 
-                            by = c("school", "sex", "age", "address","famsize",                             "Pstatus", "Medu", "Fedu", "Mjob", "Fjob",                                     "reason", "nursery", "internet"))
+                            select(-G1, -G2, -G3, -paid, -absences))
 str(final_d1)
 ```
 
-Picking School,Sex, Famsize, and Reason as our categorical variables.
+**Picking School,Sex, Famsize, and Reason as our categorical variables.**
 ```{r}
 final_d1 <- final_d1 %>%
   mutate(
@@ -55,3 +58,75 @@ str(final_d1)
 
 ## Task 2
 
+#### Categorical Variables
+
+**One-way contingency table**
+```{r}
+one_way_tbl <- table(final_d1$school)
+one_way_tbl
+one_way_tbl[1]
+```
+
+There are 287 students going to GP.
+
+**Two-way contingency table**
+```{r}
+two_way_tbl <- table(final_d1$school,final_d1$sex)
+two_way_tbl
+two_way_tbl[1,1]
+```
+
+153 Female students go to GP.  
+
+**Three-way contingency table**
+```{r}
+three_way_tbl <- table(final_d1$school,final_d1$sex,final_d1$famsize)
+three_way_tbl
+three_way_tbl[1,1,1]
+```
+
+115 Female Students that go to GP come from a family greater than 3.  
+
+
+**Filter method:**
+```{r}
+filter_d1 <- final_d1 %>% filter(school == "GP")
+cond_two_way <-table(filter_d1$sex,filter_d1$famsize)
+cond_two_way
+```
+
+**Three way table method (using previous three way variable):**
+```{r}
+cond_three_way <- three_way_tbl["GP",,]
+cond_three_way
+```
+
+**Using group_by(),summarize(),and pivot_wider().**
+
+```{r}
+new_two_way <- final_d1 |>
+                  drop_na(school,sex) |>
+                  group_by(school,sex) |>
+                  summarize(count=n()) |>
+                  pivot_wider(names_from=sex,values_from=count)
+new_two_way
+```
+
+**Stacked bar graph**
+```{r}
+ggplot(data= final_d1 |> drop_na(school,sex),aes(x = school, fill = sex)) +
+  geom_bar() + 
+  labs(x = "School",
+    y = "# of Students"
+  )
+```
+**Side by Side Graph.**
+```{r}
+ggplot(data= final_d1 |> drop_na(school,sex),aes(x = school, fill = sex)) +
+  geom_bar(position = "dodge") + 
+  labs(x = "School",
+    y = "# of Students"
+  )
+```
+
+#### Numeric Variables
