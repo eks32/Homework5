@@ -7,6 +7,7 @@ editor: visual
 
 ```{r,include=FALSE}
 library(tidyverse)
+library(dplyr)
 ```
 
 ## Task 1
@@ -25,8 +26,8 @@ print(nrow(d3)) # 382 students
 
 ```{r}
 joined_d3 <- inner_join(d1,d2, 
-                        by = c("school", "sex", "age", "address", "famsize",                           "Pstatus","Medu", "Fedu", "Mjob", "Fjob", "reason",                            "nursery", "internet")
-                        )
+                        by = c("school", "sex", "age", "address", "famsize","Pstatus","Medu", "Fedu", "Mjob", "Fjob", "reason","nursery","internet")
+)
 
 str(joined_d3)
 ```
@@ -38,9 +39,11 @@ Many to many relationship warning on row 79.  Our data is also split between non
 **All variables but no G1,G2,G3,Paid, and absences.**
 
 ```{r}
-final_d1 <- inner_join(d1 |>
-                         select(-G1, -G2, -G3, -paid, -absences), d2 |>
-                            select(-G1, -G2, -G3, -paid, -absences))
+final_d1 <- inner_join(d1, d2,
+              #joins everything but specified columns in setdiff
+              by = names(d1) |>
+                setdiff(c("G1", "G2", "G3", "paid", "absences"))
+)
 str(final_d1)
 ```
 
@@ -90,7 +93,8 @@ three_way_tbl[1,1,1]
 
 **Filter method:**
 ```{r}
-filter_d1 <- final_d1 %>% filter(school == "GP")
+filter_d1 <- final_d1 |> 
+  filter(school == "GP")
 cond_two_way <-table(filter_d1$sex,filter_d1$famsize)
 cond_two_way
 ```
@@ -114,9 +118,11 @@ new_two_way
 
 **Stacked bar graph**
 ```{r}
-ggplot(data= final_d1 |> drop_na(school,sex),aes(x = school, fill = sex)) +
+ggplot(data= final_d1 |> drop_na(reason,sex),aes(x = reason, fill = sex)) +
   geom_bar() + 
-  labs(x = "School",
+  labs(
+    title = "Stacked Bar Graph: Reason vs Sex",
+    x = "School",
     y = "# of Students"
   )
 ```
@@ -124,9 +130,85 @@ ggplot(data= final_d1 |> drop_na(school,sex),aes(x = school, fill = sex)) +
 ```{r}
 ggplot(data= final_d1 |> drop_na(school,sex),aes(x = school, fill = sex)) +
   geom_bar(position = "dodge") + 
-  labs(x = "School",
+  labs(
+    title = "Side by Side Graph: School vs Sex",
+    x = "School",
     y = "# of Students"
   )
 ```
 
 #### Numeric Variables
+
+
+**Single Grouping (by sex):**
+```{r}
+one_summary <- final_d1 |>
+              #combining G3s together
+              mutate(new_G3 = rowMeans(cbind(G3.x, G3.y), na.rm = TRUE)) |>
+                group_by(sex) |>
+                drop_na(sex) |>
+                  summarise(
+                    mean_G3 = mean(new_G3, na.rm = TRUE),
+                    median_G3 = median(new_G3, na.rm = TRUE),
+                    sd_G3 = sd(new_G3, na.rm = TRUE),
+                    IQR_G3 = IQR(new_G3, na.rm = TRUE),
+                    
+                    mean_age = mean(age, na.rm = TRUE),
+                    median_age = median(age, na.rm = TRUE),
+                    sd_age = sd(age, na.rm = TRUE),
+                    IQR_age = IQR(age, na.rm = TRUE),
+    
+                    mean_health = mean(health, na.rm = TRUE),
+                    median_health = median(health, na.rm = TRUE),
+                    sd_health = sd(health, na.rm = TRUE),
+                    IQR_health = IQR(health, na.rm = TRUE)
+                   )
+one_summary
+```
+
+
+**Two grouping variables (Sex and School):**
+```{r}
+two_summary <- final_d1 |>
+                mutate(new_G2 = rowMeans(cbind(G2.x, G2.y), na.rm = TRUE),          new_absences = rowMeans(cbind(absences.x, absences.y, na.rm = TRUE))) |>
+                group_by(sex,school) |>
+                drop_na(sex,school) |>
+                  summarise(
+                    mean_G3 = mean(new_G2, na.rm = TRUE),
+                    median_G3 = median(new_G2, na.rm = TRUE),
+                    sd_G3 = sd(new_G2, na.rm = TRUE),
+                    IQR_G3 = IQR(new_G2, na.rm = TRUE),
+                    
+                    mean_age = mean(age, na.rm = TRUE),
+                    median_age = median(age, na.rm = TRUE),
+                    sd_age = sd(age, na.rm = TRUE),
+                    IQR_age = IQR(age, na.rm = TRUE),
+    
+                    mean_absences = mean(new_absences, na.rm = TRUE),
+                    median_absences = median(new_absences, na.rm = TRUE),
+                    sd_absences = sd(new_absences, na.rm = TRUE),
+                    IQR_absences = IQR(new_absences, na.rm = TRUE)
+                   )
+two_summary
+```
+**Correlation matrix of all numeric variables.**
+
+```{r}
+numeric_d1 <- final_d1 |>
+  select(where(is.numeric))
+
+cor_matrix <- cor(numeric_d1)
+cor_matrix
+```
+
+
+• Create a histogram, kernel density plot, and boxplot for two of the numeric variables across one of the
+categorical variables (that is, create graphs that can compare the distributions across the groups on
+the same plot (no faceting here)). Add appropriate labels and titles.
+• Create two scatterplots relating a G3 variable to other numeric variables (put G3 on the y-axis). You
+should jitter the points if they sit on top of each other. Color the points by a categorical variable in
+each. Add appropriate labels and titles.
+• Repeat the scatter plot step but use faceting to obtain graphs at each setting of another categorical
+variable.
+• Repeat the scatter plot step but use faceting to obtain graphs at each combination of two categorical
+variables.
