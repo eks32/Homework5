@@ -313,6 +313,6 @@ ggplot(final_d1, aes(x = age, y = (G3.x+G3.y)/2, color = sex)) +
     y = "G3",
     color = "Sex"
     ) +
-    facet_wrap(~ school ~ sex)
+    facet_grid(~ school ~ sex)
 ```
 
