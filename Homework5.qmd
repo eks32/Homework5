@@ -109,7 +109,6 @@ cond_three_way
 
 ```{r}
 new_two_way <- final_d1 |>
-                  drop_na(school,sex) |>
                   group_by(school,sex) |>
                   summarize(count=n()) |>
                   pivot_wider(names_from=sex,values_from=count)
@@ -118,22 +117,24 @@ new_two_way
 
 **Stacked bar graph**
 ```{r}
-ggplot(data= final_d1 |> drop_na(reason,sex),aes(x = reason, fill = sex)) +
+ggplot(data= final_d1 , aes(x = reason, fill = sex)) +
   geom_bar() + 
   labs(
     title = "Stacked Bar Graph: Reason vs Sex",
     x = "School",
-    y = "# of Students"
+    y = "# of Students",
+    fill = "Sex"
   )
 ```
 **Side by Side Graph.**
 ```{r}
-ggplot(data= final_d1 |> drop_na(school,sex),aes(x = school, fill = sex)) +
+ggplot(data= final_d1 ,aes(x = school, fill = sex)) +
   geom_bar(position = "dodge") + 
   labs(
     title = "Side by Side Graph: School vs Sex",
     x = "School",
-    y = "# of Students"
+    y = "# of Students",
+    fill = "Sex"
   )
 ```
 
@@ -146,18 +147,18 @@ one_summary <- final_d1 |>
               #combining G3s together
               mutate(new_G3 = rowMeans(cbind(G3.x, G3.y), na.rm = TRUE)) |>
                 group_by(sex) |>
-                drop_na(sex) |>
                   summarise(
+                    #G3
                     mean_G3 = mean(new_G3, na.rm = TRUE),
                     median_G3 = median(new_G3, na.rm = TRUE),
                     sd_G3 = sd(new_G3, na.rm = TRUE),
                     IQR_G3 = IQR(new_G3, na.rm = TRUE),
-                    
+                    #Age
                     mean_age = mean(age, na.rm = TRUE),
                     median_age = median(age, na.rm = TRUE),
                     sd_age = sd(age, na.rm = TRUE),
                     IQR_age = IQR(age, na.rm = TRUE),
-    
+                    #health
                     mean_health = mean(health, na.rm = TRUE),
                     median_health = median(health, na.rm = TRUE),
                     sd_health = sd(health, na.rm = TRUE),
@@ -170,20 +171,20 @@ one_summary
 **Two grouping variables (Sex and School):**
 ```{r}
 two_summary <- final_d1 |>
-                mutate(new_G2 = rowMeans(cbind(G2.x, G2.y), na.rm = TRUE),          new_absences = rowMeans(cbind(absences.x, absences.y, na.rm = TRUE))) |>
+                mutate(new_G2 = rowMeans(cbind(G2.x, G2.y), na.rm = TRUE),new_absences = rowMeans(cbind(absences.x, absences.y, na.rm = TRUE))) |>
                 group_by(sex,school) |>
-                drop_na(sex,school) |>
                   summarise(
-                    mean_G3 = mean(new_G2, na.rm = TRUE),
-                    median_G3 = median(new_G2, na.rm = TRUE),
-                    sd_G3 = sd(new_G2, na.rm = TRUE),
-                    IQR_G3 = IQR(new_G2, na.rm = TRUE),
-                    
+                    #G2
+                    mean_G2 = mean(new_G2, na.rm = TRUE),
+                    median_G2 = median(new_G2, na.rm = TRUE),
+                    sd_G2 = sd(new_G2, na.rm = TRUE),
+                    IQR_G2 = IQR(new_G2, na.rm = TRUE),
+                    #age
                     mean_age = mean(age, na.rm = TRUE),
                     median_age = median(age, na.rm = TRUE),
                     sd_age = sd(age, na.rm = TRUE),
                     IQR_age = IQR(age, na.rm = TRUE),
-    
+                    #absences (another split variable with x/y datasets)
                     mean_absences = mean(new_absences, na.rm = TRUE),
                     median_absences = median(new_absences, na.rm = TRUE),
                     sd_absences = sd(new_absences, na.rm = TRUE),
@@ -196,19 +197,122 @@ two_summary
 ```{r}
 numeric_d1 <- final_d1 |>
   select(where(is.numeric))
-
-cor_matrix <- cor(numeric_d1)
-cor_matrix
+num_cor_matrix <- cor(numeric_d1)
+num_cor_matrix
 ```
 
 
-• Create a histogram, kernel density plot, and boxplot for two of the numeric variables across one of the
-categorical variables (that is, create graphs that can compare the distributions across the groups on
-the same plot (no faceting here)). Add appropriate labels and titles.
-• Create two scatterplots relating a G3 variable to other numeric variables (put G3 on the y-axis). You
-should jitter the points if they sit on top of each other. Color the points by a categorical variable in
-each. Add appropriate labels and titles.
-• Repeat the scatter plot step but use faceting to obtain graphs at each setting of another categorical
-variable.
-• Repeat the scatter plot step but use faceting to obtain graphs at each combination of two categorical
-variables.
+**Histogram of Age & Sex**
+
+```{r}
+ggplot(data= final_d1 , aes(x = age, fill = sex)) +
+  geom_histogram(binwidth = 1) +
+  labs(
+    title = "Histogram of Age by Sex",
+    x = "Age",
+    y = "Count",
+    fill = "Sex"
+  )
+```
+
+**Kernel Density Plot**
+
+#fix
+
+```{r}
+ggplot(data= final_d1 , aes(x = (G1.x+G1.y)/2,color =sex)) +
+  geom_density() +
+  labs(
+    title = "Kernel Density Plot of Mean of G1",
+    x = "Mean of G1 values",
+    y = "Density",
+    color="Sex"
+  )
+```
+
+**Boxplot of two numerical variables w/ categorical**
+
+```{r}
+ggplot(data= final_d1 , aes(x = age,y=(G2.x+G2.y)/2, fill=sex)) +
+  geom_boxplot() +
+  labs(
+    title = "Boxplot of Age by Sex",
+    x = "Age",
+    y="Mean of G2",
+    fill="Sex"
+)
+```
+
+
+
+
+**Scatterplot #1**
+
+
+
+```{r}
+ggplot(final_d1,  aes(x = age, y = (G3.x+G3.y)/2, color = sex) ) +
+  geom_point(position = "jitter") + 
+  labs(
+    title = "Scatterplot of G3 vs. Age with Sex",
+    x = "Age",
+    y = "Mean of G3",
+    color = "Sex"
+  )
+```
+
+**Scatterplot #2**
+
+```{r}
+ggplot(final_d1,  aes(x = Medu, y = (G3.x+G3.y)/2, color = reason) ) +
+  geom_point(position = "jitter") + 
+  labs(
+    title = "Scatterplot of G3 vs. Male Education classified by Reason",
+    x = "Male Education",
+    y = "Mean of G3",
+    color = "Sex"
+  )
+```
+
+**Faceted Scatterplot #1**
+
+```{r}
+ggplot(final_d1, aes(x = age, y = (G3.x+G3.y)/2, color = sex)) +
+  geom_point(position="jitter") +
+  labs(
+    title = "Scatterplot of G3 vs. Age with Sex, Faceted by School",
+    x = "Age",
+    y = "G3",
+    color = "Sex"
+    ) +
+    facet_wrap(~ school)
+```
+
+
+**Faceted Scatterplot #2**
+
+```{r}
+ggplot(final_d1, aes(x = Medu, y = (G3.x+G3.y)/2, color = sex)) +
+  geom_point(position="jitter") +
+  labs(
+    title = "Scatterplot of G3.x vs. Male Education with Sex, Faceted by Reason",
+    x = "Age",
+    y = "G3",
+    color = "Sex"
+    ) +
+    facet_wrap(~ reason)
+```
+
+**Faceting Two Categorical Variables**
+```{r}
+ggplot(final_d1, aes(x = age, y = (G3.x+G3.y)/2, color = sex)) +
+  geom_point(position="jitter") +
+  labs(
+    title = "Scatterplot of G3 vs. Age with Sex, Faceted by School and Sex",
+    x = "Age",
+    y = "G3",
+    color = "Sex"
+    ) +
+    facet_wrap(~ school ~ sex)
+```
+
