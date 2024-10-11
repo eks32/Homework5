@@ -22,6 +22,8 @@ str(d3)
 print(nrow(d3)) # 382 students
 ```
 
+Looks like a bunch of variables got split into x & y.  Looking at the data, only G1,G2,G3, absences, and paid seem to be different than their pairs.
+
 **Using inner join().**   
 
 ```{r}
@@ -34,8 +36,6 @@ str(joined_d3)
 
 Many to many relationship warning on row 79.  Our data is also split between non joined variables.      
 
-
-
 **All variables but no G1,G2,G3,Paid, and absences.**
 
 ```{r}
@@ -46,6 +46,8 @@ final_d1 <- inner_join(d1, d2,
 )
 str(final_d1)
 ```
+
+Now only variables that are split are the ones we specified.  
 
 **Picking School,Sex, Famsize, and Reason as our categorical variables.**
 ```{r}
@@ -58,6 +60,8 @@ final_d1 <- final_d1 %>%
   )
 str(final_d1)
 ```
+
+Now as factors.
 
 ## Task 2
 
@@ -126,6 +130,9 @@ ggplot(data= final_d1 , aes(x = reason, fill = sex)) +
     fill = "Sex"
   )
 ```
+
+Seems fairly even.  Reputation might be more for females.
+
 **Side by Side Graph.**
 ```{r}
 ggplot(data= final_d1 ,aes(x = school, fill = sex)) +
@@ -144,15 +151,13 @@ ggplot(data= final_d1 ,aes(x = school, fill = sex)) +
 **Single Grouping (by sex):**
 ```{r}
 one_summary <- final_d1 |>
-              #combining G3s together
-              mutate(new_G3 = rowMeans(cbind(G3.x, G3.y), na.rm = TRUE)) |>
                 group_by(sex) |>
                   summarise(
                     #G3
-                    mean_G3 = mean(new_G3, na.rm = TRUE),
-                    median_G3 = median(new_G3, na.rm = TRUE),
-                    sd_G3 = sd(new_G3, na.rm = TRUE),
-                    IQR_G3 = IQR(new_G3, na.rm = TRUE),
+                    mean_G3 = mean((G3.x+G3.y)/2, na.rm = TRUE),
+                    median_G3 = median((G3.x+G3.y)/2, na.rm = TRUE),
+                    sd_G3 = sd((G3.x+G3.y)/2, na.rm = TRUE),
+                    IQR_G3 = IQR((G3.x+G3.y)/2, na.rm = TRUE),
                     #Age
                     mean_age = mean(age, na.rm = TRUE),
                     median_age = median(age, na.rm = TRUE),
@@ -166,32 +171,35 @@ one_summary <- final_d1 |>
                    )
 one_summary
 ```
+Summary of G3,age,and health.
+
+
 
 
 **Two grouping variables (Sex and School):**
 ```{r}
 two_summary <- final_d1 |>
-                mutate(new_G2 = rowMeans(cbind(G2.x, G2.y), na.rm = TRUE),new_absences = rowMeans(cbind(absences.x, absences.y, na.rm = TRUE))) |>
                 group_by(sex,school) |>
                   summarise(
                     #G2
-                    mean_G2 = mean(new_G2, na.rm = TRUE),
-                    median_G2 = median(new_G2, na.rm = TRUE),
-                    sd_G2 = sd(new_G2, na.rm = TRUE),
-                    IQR_G2 = IQR(new_G2, na.rm = TRUE),
+                    mean_G2 = mean((G2.x+G2.y)/2, na.rm = TRUE),
+                    median_G2 = median((G2.x+G2.y)/2, na.rm = TRUE),
+                    sd_G2 = sd((G2.x+G2.y)/2, na.rm = TRUE),
+                    IQR_G2 = IQR((G2.x+G2.y)/2, na.rm = TRUE),
                     #age
                     mean_age = mean(age, na.rm = TRUE),
                     median_age = median(age, na.rm = TRUE),
                     sd_age = sd(age, na.rm = TRUE),
                     IQR_age = IQR(age, na.rm = TRUE),
-                    #absences (another split variable with x/y datasets)
-                    mean_absences = mean(new_absences, na.rm = TRUE),
-                    median_absences = median(new_absences, na.rm = TRUE),
-                    sd_absences = sd(new_absences, na.rm = TRUE),
-                    IQR_absences = IQR(new_absences, na.rm = TRUE)
+                    #absences
+                    mean_absences = mean((absences.x+absences.y)/2, na.rm = TRUE),
+                    median_absences = median((absences.x+absences.y)/2, na.rm = TRUE),
+                    sd_absences = sd((absences.x+absences.y)/2, na.rm = TRUE),
+                    IQR_absences = IQR((absences.x+absences.y)/2, na.rm = TRUE)
                    )
 two_summary
 ```
+Split between gender and school.
 **Correlation matrix of all numeric variables.**
 
 ```{r}
@@ -215,6 +223,9 @@ ggplot(data= final_d1 , aes(x = age, fill = sex)) +
   )
 ```
 
+Few outliers noted, older students.
+
+
 **Kernel Density Plot**
 
 #fix
@@ -230,25 +241,26 @@ ggplot(data= final_d1 , aes(x = (G1.x+G1.y)/2,color =sex)) +
   )
 ```
 
+Somewhat skewed.
+
 **Boxplot of two numerical variables w/ categorical**
 
 ```{r}
-ggplot(data= final_d1 , aes(x = age,y=(G2.x+G2.y)/2, fill=sex)) +
+ggplot(data= final_d1 , aes(x = (G2.x+G2.y)/2, fill=sex)) +
   geom_boxplot() +
   labs(
-    title = "Boxplot of Age by Sex",
-    x = "Age",
-    y="Mean of G2",
+    title = "Boxplot of G2 scores by Sex",
+    x = "Mean of G2",
     fill="Sex"
 )
 ```
+
+Males scored slightly higher.  
 
 
 
 
 **Scatterplot #1**
-
-
 
 ```{r}
 ggplot(final_d1,  aes(x = age, y = (G3.x+G3.y)/2, color = sex) ) +
@@ -260,6 +272,8 @@ ggplot(final_d1,  aes(x = age, y = (G3.x+G3.y)/2, color = sex) ) +
     color = "Sex"
   )
 ```
+
+Looks fairly random.
 
 **Scatterplot #2**
 
@@ -273,6 +287,8 @@ ggplot(final_d1,  aes(x = Medu, y = (G3.x+G3.y)/2, color = reason) ) +
     color = "Sex"
   )
 ```
+
+
 
 **Faceted Scatterplot #1**
 
@@ -288,6 +304,7 @@ ggplot(final_d1, aes(x = age, y = (G3.x+G3.y)/2, color = sex)) +
     facet_wrap(~ school)
 ```
 
+Looks like more variance at school MS.
 
 **Faceted Scatterplot #2**
 
@@ -296,12 +313,15 @@ ggplot(final_d1, aes(x = Medu, y = (G3.x+G3.y)/2, color = sex)) +
   geom_point(position="jitter") +
   labs(
     title = "Scatterplot of G3.x vs. Male Education with Sex, Faceted by Reason",
-    x = "Age",
+    x = "Male Education Level",
     y = "G3",
     color = "Sex"
     ) +
     facet_wrap(~ reason)
 ```
+
+Students favor reputation and course.
+
 
 **Faceting Two Categorical Variables**
 ```{r}
@@ -316,3 +336,4 @@ ggplot(final_d1, aes(x = age, y = (G3.x+G3.y)/2, color = sex)) +
     facet_grid(~ school ~ sex)
 ```
 
+Less males at MS.

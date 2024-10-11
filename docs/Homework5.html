@@ -209,6 +209,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <pre><code>[1] 382</code></pre>
 </div>
 </div>
+<p>Looks like a bunch of variables got split into x &amp; y. Looking at the data, only G1,G2,G3, absences, and paid seem to be different than their pairs.</p>
 <p><strong>Using inner join().</strong></p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>joined_d3 <span class="ot">&lt;-</span> <span class="fu">inner_join</span>(d1,d2, </span>
@@ -330,6 +331,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
  $ G3.y      : int  11 11 14 13 13 13 13 17 13 14 ...</code></pre>
 </div>
 </div>
+<p>Now only variables that are split are the ones we specified.</p>
 <p><strong>Picking School,Sex, Famsize, and Reason as our categorical variables.</strong></p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb11"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a>final_d1 <span class="ot">&lt;-</span> final_d1 <span class="sc">%&gt;%</span></span>
@@ -382,6 +384,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
  $ G3.y      : int  11 11 14 13 13 13 13 17 13 14 ...</code></pre>
 </div>
 </div>
+<p>Now as factors.</p>
 </section>
 <section id="task-2" class="level2">
 <h2 class="anchored" data-anchor-id="task-2">Task 2</h2>
@@ -506,6 +509,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </div>
 </div>
 </div>
+<p>Seems fairly even. Reputation might be more for females.</p>
 <p><strong>Side by Side Graph.</strong></p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb34"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb34-1"><a href="#cb34-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(<span class="at">data=</span> final_d1 ,<span class="fu">aes</span>(<span class="at">x =</span> school, <span class="at">fill =</span> sex)) <span class="sc">+</span></span>
@@ -530,27 +534,25 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <p><strong>Single Grouping (by sex):</strong></p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb35"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb35-1"><a href="#cb35-1" aria-hidden="true" tabindex="-1"></a>one_summary <span class="ot">&lt;-</span> final_d1 <span class="sc">|&gt;</span></span>
-<span id="cb35-2"><a href="#cb35-2" aria-hidden="true" tabindex="-1"></a>              <span class="co">#combining G3s together</span></span>
-<span id="cb35-3"><a href="#cb35-3" aria-hidden="true" tabindex="-1"></a>              <span class="fu">mutate</span>(<span class="at">new_G3 =</span> <span class="fu">rowMeans</span>(<span class="fu">cbind</span>(G3.x, G3.y), <span class="at">na.rm =</span> <span class="cn">TRUE</span>)) <span class="sc">|&gt;</span></span>
-<span id="cb35-4"><a href="#cb35-4" aria-hidden="true" tabindex="-1"></a>                <span class="fu">group_by</span>(sex) <span class="sc">|&gt;</span></span>
-<span id="cb35-5"><a href="#cb35-5" aria-hidden="true" tabindex="-1"></a>                  <span class="fu">summarise</span>(</span>
-<span id="cb35-6"><a href="#cb35-6" aria-hidden="true" tabindex="-1"></a>                    <span class="co">#G3</span></span>
-<span id="cb35-7"><a href="#cb35-7" aria-hidden="true" tabindex="-1"></a>                    <span class="at">mean_G3 =</span> <span class="fu">mean</span>(new_G3, <span class="at">na.rm =</span> <span class="cn">TRUE</span>),</span>
-<span id="cb35-8"><a href="#cb35-8" aria-hidden="true" tabindex="-1"></a>                    <span class="at">median_G3 =</span> <span class="fu">median</span>(new_G3, <span class="at">na.rm =</span> <span class="cn">TRUE</span>),</span>
-<span id="cb35-9"><a href="#cb35-9" aria-hidden="true" tabindex="-1"></a>                    <span class="at">sd_G3 =</span> <span class="fu">sd</span>(new_G3, <span class="at">na.rm =</span> <span class="cn">TRUE</span>),</span>
-<span id="cb35-10"><a href="#cb35-10" aria-hidden="true" tabindex="-1"></a>                    <span class="at">IQR_G3 =</span> <span class="fu">IQR</span>(new_G3, <span class="at">na.rm =</span> <span class="cn">TRUE</span>),</span>
-<span id="cb35-11"><a href="#cb35-11" aria-hidden="true" tabindex="-1"></a>                    <span class="co">#Age</span></span>
-<span id="cb35-12"><a href="#cb35-12" aria-hidden="true" tabindex="-1"></a>                    <span class="at">mean_age =</span> <span class="fu">mean</span>(age, <span class="at">na.rm =</span> <span class="cn">TRUE</span>),</span>
-<span id="cb35-13"><a href="#cb35-13" aria-hidden="true" tabindex="-1"></a>                    <span class="at">median_age =</span> <span class="fu">median</span>(age, <span class="at">na.rm =</span> <span class="cn">TRUE</span>),</span>
-<span id="cb35-14"><a href="#cb35-14" aria-hidden="true" tabindex="-1"></a>                    <span class="at">sd_age =</span> <span class="fu">sd</span>(age, <span class="at">na.rm =</span> <span class="cn">TRUE</span>),</span>
-<span id="cb35-15"><a href="#cb35-15" aria-hidden="true" tabindex="-1"></a>                    <span class="at">IQR_age =</span> <span class="fu">IQR</span>(age, <span class="at">na.rm =</span> <span class="cn">TRUE</span>),</span>
-<span id="cb35-16"><a href="#cb35-16" aria-hidden="true" tabindex="-1"></a>                    <span class="co">#health</span></span>
-<span id="cb35-17"><a href="#cb35-17" aria-hidden="true" tabindex="-1"></a>                    <span class="at">mean_health =</span> <span class="fu">mean</span>(health, <span class="at">na.rm =</span> <span class="cn">TRUE</span>),</span>
-<span id="cb35-18"><a href="#cb35-18" aria-hidden="true" tabindex="-1"></a>                    <span class="at">median_health =</span> <span class="fu">median</span>(health, <span class="at">na.rm =</span> <span class="cn">TRUE</span>),</span>
-<span id="cb35-19"><a href="#cb35-19" aria-hidden="true" tabindex="-1"></a>                    <span class="at">sd_health =</span> <span class="fu">sd</span>(health, <span class="at">na.rm =</span> <span class="cn">TRUE</span>),</span>
-<span id="cb35-20"><a href="#cb35-20" aria-hidden="true" tabindex="-1"></a>                    <span class="at">IQR_health =</span> <span class="fu">IQR</span>(health, <span class="at">na.rm =</span> <span class="cn">TRUE</span>)</span>
-<span id="cb35-21"><a href="#cb35-21" aria-hidden="true" tabindex="-1"></a>                   )</span>
-<span id="cb35-22"><a href="#cb35-22" aria-hidden="true" tabindex="-1"></a>one_summary</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb35-2"><a href="#cb35-2" aria-hidden="true" tabindex="-1"></a>                <span class="fu">group_by</span>(sex) <span class="sc">|&gt;</span></span>
+<span id="cb35-3"><a href="#cb35-3" aria-hidden="true" tabindex="-1"></a>                  <span class="fu">summarise</span>(</span>
+<span id="cb35-4"><a href="#cb35-4" aria-hidden="true" tabindex="-1"></a>                    <span class="co">#G3</span></span>
+<span id="cb35-5"><a href="#cb35-5" aria-hidden="true" tabindex="-1"></a>                    <span class="at">mean_G3 =</span> <span class="fu">mean</span>((G3.x<span class="sc">+</span>G3.y)<span class="sc">/</span><span class="dv">2</span>, <span class="at">na.rm =</span> <span class="cn">TRUE</span>),</span>
+<span id="cb35-6"><a href="#cb35-6" aria-hidden="true" tabindex="-1"></a>                    <span class="at">median_G3 =</span> <span class="fu">median</span>((G3.x<span class="sc">+</span>G3.y)<span class="sc">/</span><span class="dv">2</span>, <span class="at">na.rm =</span> <span class="cn">TRUE</span>),</span>
+<span id="cb35-7"><a href="#cb35-7" aria-hidden="true" tabindex="-1"></a>                    <span class="at">sd_G3 =</span> <span class="fu">sd</span>((G3.x<span class="sc">+</span>G3.y)<span class="sc">/</span><span class="dv">2</span>, <span class="at">na.rm =</span> <span class="cn">TRUE</span>),</span>
+<span id="cb35-8"><a href="#cb35-8" aria-hidden="true" tabindex="-1"></a>                    <span class="at">IQR_G3 =</span> <span class="fu">IQR</span>((G3.x<span class="sc">+</span>G3.y)<span class="sc">/</span><span class="dv">2</span>, <span class="at">na.rm =</span> <span class="cn">TRUE</span>),</span>
+<span id="cb35-9"><a href="#cb35-9" aria-hidden="true" tabindex="-1"></a>                    <span class="co">#Age</span></span>
+<span id="cb35-10"><a href="#cb35-10" aria-hidden="true" tabindex="-1"></a>                    <span class="at">mean_age =</span> <span class="fu">mean</span>(age, <span class="at">na.rm =</span> <span class="cn">TRUE</span>),</span>
+<span id="cb35-11"><a href="#cb35-11" aria-hidden="true" tabindex="-1"></a>                    <span class="at">median_age =</span> <span class="fu">median</span>(age, <span class="at">na.rm =</span> <span class="cn">TRUE</span>),</span>
+<span id="cb35-12"><a href="#cb35-12" aria-hidden="true" tabindex="-1"></a>                    <span class="at">sd_age =</span> <span class="fu">sd</span>(age, <span class="at">na.rm =</span> <span class="cn">TRUE</span>),</span>
+<span id="cb35-13"><a href="#cb35-13" aria-hidden="true" tabindex="-1"></a>                    <span class="at">IQR_age =</span> <span class="fu">IQR</span>(age, <span class="at">na.rm =</span> <span class="cn">TRUE</span>),</span>
+<span id="cb35-14"><a href="#cb35-14" aria-hidden="true" tabindex="-1"></a>                    <span class="co">#health</span></span>
+<span id="cb35-15"><a href="#cb35-15" aria-hidden="true" tabindex="-1"></a>                    <span class="at">mean_health =</span> <span class="fu">mean</span>(health, <span class="at">na.rm =</span> <span class="cn">TRUE</span>),</span>
+<span id="cb35-16"><a href="#cb35-16" aria-hidden="true" tabindex="-1"></a>                    <span class="at">median_health =</span> <span class="fu">median</span>(health, <span class="at">na.rm =</span> <span class="cn">TRUE</span>),</span>
+<span id="cb35-17"><a href="#cb35-17" aria-hidden="true" tabindex="-1"></a>                    <span class="at">sd_health =</span> <span class="fu">sd</span>(health, <span class="at">na.rm =</span> <span class="cn">TRUE</span>),</span>
+<span id="cb35-18"><a href="#cb35-18" aria-hidden="true" tabindex="-1"></a>                    <span class="at">IQR_health =</span> <span class="fu">IQR</span>(health, <span class="at">na.rm =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb35-19"><a href="#cb35-19" aria-hidden="true" tabindex="-1"></a>                   )</span>
+<span id="cb35-20"><a href="#cb35-20" aria-hidden="true" tabindex="-1"></a>one_summary</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code># A tibble: 2 × 13
   sex   mean_G3 median_G3 sd_G3 IQR_G3 mean_age median_age sd_age IQR_age
@@ -561,28 +563,28 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 #   IQR_health &lt;dbl&gt;</code></pre>
 </div>
 </div>
+<p>Summary of G3,age,and health.</p>
 <p><strong>Two grouping variables (Sex and School):</strong></p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb37"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb37-1"><a href="#cb37-1" aria-hidden="true" tabindex="-1"></a>two_summary <span class="ot">&lt;-</span> final_d1 <span class="sc">|&gt;</span></span>
-<span id="cb37-2"><a href="#cb37-2" aria-hidden="true" tabindex="-1"></a>                <span class="fu">mutate</span>(<span class="at">new_G2 =</span> <span class="fu">rowMeans</span>(<span class="fu">cbind</span>(G2.x, G2.y), <span class="at">na.rm =</span> <span class="cn">TRUE</span>),<span class="at">new_absences =</span> <span class="fu">rowMeans</span>(<span class="fu">cbind</span>(absences.x, absences.y, <span class="at">na.rm =</span> <span class="cn">TRUE</span>))) <span class="sc">|&gt;</span></span>
-<span id="cb37-3"><a href="#cb37-3" aria-hidden="true" tabindex="-1"></a>                <span class="fu">group_by</span>(sex,school) <span class="sc">|&gt;</span></span>
-<span id="cb37-4"><a href="#cb37-4" aria-hidden="true" tabindex="-1"></a>                  <span class="fu">summarise</span>(</span>
-<span id="cb37-5"><a href="#cb37-5" aria-hidden="true" tabindex="-1"></a>                    <span class="co">#G2</span></span>
-<span id="cb37-6"><a href="#cb37-6" aria-hidden="true" tabindex="-1"></a>                    <span class="at">mean_G2 =</span> <span class="fu">mean</span>(new_G2, <span class="at">na.rm =</span> <span class="cn">TRUE</span>),</span>
-<span id="cb37-7"><a href="#cb37-7" aria-hidden="true" tabindex="-1"></a>                    <span class="at">median_G2 =</span> <span class="fu">median</span>(new_G2, <span class="at">na.rm =</span> <span class="cn">TRUE</span>),</span>
-<span id="cb37-8"><a href="#cb37-8" aria-hidden="true" tabindex="-1"></a>                    <span class="at">sd_G2 =</span> <span class="fu">sd</span>(new_G2, <span class="at">na.rm =</span> <span class="cn">TRUE</span>),</span>
-<span id="cb37-9"><a href="#cb37-9" aria-hidden="true" tabindex="-1"></a>                    <span class="at">IQR_G2 =</span> <span class="fu">IQR</span>(new_G2, <span class="at">na.rm =</span> <span class="cn">TRUE</span>),</span>
-<span id="cb37-10"><a href="#cb37-10" aria-hidden="true" tabindex="-1"></a>                    <span class="co">#age</span></span>
-<span id="cb37-11"><a href="#cb37-11" aria-hidden="true" tabindex="-1"></a>                    <span class="at">mean_age =</span> <span class="fu">mean</span>(age, <span class="at">na.rm =</span> <span class="cn">TRUE</span>),</span>
-<span id="cb37-12"><a href="#cb37-12" aria-hidden="true" tabindex="-1"></a>                    <span class="at">median_age =</span> <span class="fu">median</span>(age, <span class="at">na.rm =</span> <span class="cn">TRUE</span>),</span>
-<span id="cb37-13"><a href="#cb37-13" aria-hidden="true" tabindex="-1"></a>                    <span class="at">sd_age =</span> <span class="fu">sd</span>(age, <span class="at">na.rm =</span> <span class="cn">TRUE</span>),</span>
-<span id="cb37-14"><a href="#cb37-14" aria-hidden="true" tabindex="-1"></a>                    <span class="at">IQR_age =</span> <span class="fu">IQR</span>(age, <span class="at">na.rm =</span> <span class="cn">TRUE</span>),</span>
-<span id="cb37-15"><a href="#cb37-15" aria-hidden="true" tabindex="-1"></a>                    <span class="co">#absences (another split variable with x/y datasets)</span></span>
-<span id="cb37-16"><a href="#cb37-16" aria-hidden="true" tabindex="-1"></a>                    <span class="at">mean_absences =</span> <span class="fu">mean</span>(new_absences, <span class="at">na.rm =</span> <span class="cn">TRUE</span>),</span>
-<span id="cb37-17"><a href="#cb37-17" aria-hidden="true" tabindex="-1"></a>                    <span class="at">median_absences =</span> <span class="fu">median</span>(new_absences, <span class="at">na.rm =</span> <span class="cn">TRUE</span>),</span>
-<span id="cb37-18"><a href="#cb37-18" aria-hidden="true" tabindex="-1"></a>                    <span class="at">sd_absences =</span> <span class="fu">sd</span>(new_absences, <span class="at">na.rm =</span> <span class="cn">TRUE</span>),</span>
-<span id="cb37-19"><a href="#cb37-19" aria-hidden="true" tabindex="-1"></a>                    <span class="at">IQR_absences =</span> <span class="fu">IQR</span>(new_absences, <span class="at">na.rm =</span> <span class="cn">TRUE</span>)</span>
-<span id="cb37-20"><a href="#cb37-20" aria-hidden="true" tabindex="-1"></a>                   )</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb37-2"><a href="#cb37-2" aria-hidden="true" tabindex="-1"></a>                <span class="fu">group_by</span>(sex,school) <span class="sc">|&gt;</span></span>
+<span id="cb37-3"><a href="#cb37-3" aria-hidden="true" tabindex="-1"></a>                  <span class="fu">summarise</span>(</span>
+<span id="cb37-4"><a href="#cb37-4" aria-hidden="true" tabindex="-1"></a>                    <span class="co">#G2</span></span>
+<span id="cb37-5"><a href="#cb37-5" aria-hidden="true" tabindex="-1"></a>                    <span class="at">mean_G2 =</span> <span class="fu">mean</span>((G2.x<span class="sc">+</span>G2.y)<span class="sc">/</span><span class="dv">2</span>, <span class="at">na.rm =</span> <span class="cn">TRUE</span>),</span>
+<span id="cb37-6"><a href="#cb37-6" aria-hidden="true" tabindex="-1"></a>                    <span class="at">median_G2 =</span> <span class="fu">median</span>((G2.x<span class="sc">+</span>G2.y)<span class="sc">/</span><span class="dv">2</span>, <span class="at">na.rm =</span> <span class="cn">TRUE</span>),</span>
+<span id="cb37-7"><a href="#cb37-7" aria-hidden="true" tabindex="-1"></a>                    <span class="at">sd_G2 =</span> <span class="fu">sd</span>((G2.x<span class="sc">+</span>G2.y)<span class="sc">/</span><span class="dv">2</span>, <span class="at">na.rm =</span> <span class="cn">TRUE</span>),</span>
+<span id="cb37-8"><a href="#cb37-8" aria-hidden="true" tabindex="-1"></a>                    <span class="at">IQR_G2 =</span> <span class="fu">IQR</span>((G2.x<span class="sc">+</span>G2.y)<span class="sc">/</span><span class="dv">2</span>, <span class="at">na.rm =</span> <span class="cn">TRUE</span>),</span>
+<span id="cb37-9"><a href="#cb37-9" aria-hidden="true" tabindex="-1"></a>                    <span class="co">#age</span></span>
+<span id="cb37-10"><a href="#cb37-10" aria-hidden="true" tabindex="-1"></a>                    <span class="at">mean_age =</span> <span class="fu">mean</span>(age, <span class="at">na.rm =</span> <span class="cn">TRUE</span>),</span>
+<span id="cb37-11"><a href="#cb37-11" aria-hidden="true" tabindex="-1"></a>                    <span class="at">median_age =</span> <span class="fu">median</span>(age, <span class="at">na.rm =</span> <span class="cn">TRUE</span>),</span>
+<span id="cb37-12"><a href="#cb37-12" aria-hidden="true" tabindex="-1"></a>                    <span class="at">sd_age =</span> <span class="fu">sd</span>(age, <span class="at">na.rm =</span> <span class="cn">TRUE</span>),</span>
+<span id="cb37-13"><a href="#cb37-13" aria-hidden="true" tabindex="-1"></a>                    <span class="at">IQR_age =</span> <span class="fu">IQR</span>(age, <span class="at">na.rm =</span> <span class="cn">TRUE</span>),</span>
+<span id="cb37-14"><a href="#cb37-14" aria-hidden="true" tabindex="-1"></a>                    <span class="co">#absences</span></span>
+<span id="cb37-15"><a href="#cb37-15" aria-hidden="true" tabindex="-1"></a>                    <span class="at">mean_absences =</span> <span class="fu">mean</span>((absences.x<span class="sc">+</span>absences.y)<span class="sc">/</span><span class="dv">2</span>, <span class="at">na.rm =</span> <span class="cn">TRUE</span>),</span>
+<span id="cb37-16"><a href="#cb37-16" aria-hidden="true" tabindex="-1"></a>                    <span class="at">median_absences =</span> <span class="fu">median</span>((absences.x<span class="sc">+</span>absences.y)<span class="sc">/</span><span class="dv">2</span>, <span class="at">na.rm =</span> <span class="cn">TRUE</span>),</span>
+<span id="cb37-17"><a href="#cb37-17" aria-hidden="true" tabindex="-1"></a>                    <span class="at">sd_absences =</span> <span class="fu">sd</span>((absences.x<span class="sc">+</span>absences.y)<span class="sc">/</span><span class="dv">2</span>, <span class="at">na.rm =</span> <span class="cn">TRUE</span>),</span>
+<span id="cb37-18"><a href="#cb37-18" aria-hidden="true" tabindex="-1"></a>                    <span class="at">IQR_absences =</span> <span class="fu">IQR</span>((absences.x<span class="sc">+</span>absences.y)<span class="sc">/</span><span class="dv">2</span>, <span class="at">na.rm =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb37-19"><a href="#cb37-19" aria-hidden="true" tabindex="-1"></a>                   )</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stderr">
 <pre><code>`summarise()` has grouped output by 'sex'. You can override using the `.groups`
 argument.</code></pre>
@@ -601,7 +603,7 @@ argument.</code></pre>
 #   sd_absences &lt;dbl&gt;, IQR_absences &lt;dbl&gt;</code></pre>
 </div>
 </div>
-<p><strong>Correlation matrix of all numeric variables.</strong></p>
+<p>Split between gender and school. <strong>Correlation matrix of all numeric variables.</strong></p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb41"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb41-1"><a href="#cb41-1" aria-hidden="true" tabindex="-1"></a>numeric_d1 <span class="ot">&lt;-</span> final_d1 <span class="sc">|&gt;</span></span>
 <span id="cb41-2"><a href="#cb41-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(<span class="fu">where</span>(is.numeric))</span>
@@ -712,6 +714,7 @@ G3.y        0.475956497 -0.071452010  0.82541432  0.89430982  1.000000000</code>
 </div>
 </div>
 </div>
+<p>Few outliers noted, older students.</p>
 <p><strong>Kernel Density Plot</strong></p>
 <p>#fix</p>
 <div class="cell">
@@ -731,16 +734,16 @@ G3.y        0.475956497 -0.071452010  0.82541432  0.89430982  1.000000000</code>
 </div>
 </div>
 </div>
+<p>Somewhat skewed.</p>
 <p><strong>Boxplot of two numerical variables w/ categorical</strong></p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb45"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb45-1"><a href="#cb45-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(<span class="at">data=</span> final_d1 , <span class="fu">aes</span>(<span class="at">x =</span> age,<span class="at">y=</span>(G2.x<span class="sc">+</span>G2.y)<span class="sc">/</span><span class="dv">2</span>, <span class="at">fill=</span>sex)) <span class="sc">+</span></span>
+<div class="sourceCode cell-code" id="cb45"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb45-1"><a href="#cb45-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(<span class="at">data=</span> final_d1 , <span class="fu">aes</span>(<span class="at">x =</span> (G2.x<span class="sc">+</span>G2.y)<span class="sc">/</span><span class="dv">2</span>, <span class="at">fill=</span>sex)) <span class="sc">+</span></span>
 <span id="cb45-2"><a href="#cb45-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_boxplot</span>() <span class="sc">+</span></span>
 <span id="cb45-3"><a href="#cb45-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(</span>
-<span id="cb45-4"><a href="#cb45-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">title =</span> <span class="st">"Boxplot of Age by Sex"</span>,</span>
-<span id="cb45-5"><a href="#cb45-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">x =</span> <span class="st">"Age"</span>,</span>
-<span id="cb45-6"><a href="#cb45-6" aria-hidden="true" tabindex="-1"></a>    <span class="at">y=</span><span class="st">"Mean of G2"</span>,</span>
-<span id="cb45-7"><a href="#cb45-7" aria-hidden="true" tabindex="-1"></a>    <span class="at">fill=</span><span class="st">"Sex"</span></span>
-<span id="cb45-8"><a href="#cb45-8" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb45-4"><a href="#cb45-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">title =</span> <span class="st">"Boxplot of G2 scores by Sex"</span>,</span>
+<span id="cb45-5"><a href="#cb45-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">x =</span> <span class="st">"Mean of G2"</span>,</span>
+<span id="cb45-6"><a href="#cb45-6" aria-hidden="true" tabindex="-1"></a>    <span class="at">fill=</span><span class="st">"Sex"</span></span>
+<span id="cb45-7"><a href="#cb45-7" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 <div>
 <figure class="figure">
@@ -749,6 +752,7 @@ G3.y        0.475956497 -0.071452010  0.82541432  0.89430982  1.000000000</code>
 </div>
 </div>
 </div>
+<p>Males scored slightly higher.</p>
 <p><strong>Scatterplot #1</strong></p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb46"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb46-1"><a href="#cb46-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(final_d1,  <span class="fu">aes</span>(<span class="at">x =</span> age, <span class="at">y =</span> (G3.x<span class="sc">+</span>G3.y)<span class="sc">/</span><span class="dv">2</span>, <span class="at">color =</span> sex) ) <span class="sc">+</span></span>
@@ -767,6 +771,7 @@ G3.y        0.475956497 -0.071452010  0.82541432  0.89430982  1.000000000</code>
 </div>
 </div>
 </div>
+<p>Looks fairly random.</p>
 <p><strong>Scatterplot #2</strong></p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb47"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb47-1"><a href="#cb47-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(final_d1,  <span class="fu">aes</span>(<span class="at">x =</span> Medu, <span class="at">y =</span> (G3.x<span class="sc">+</span>G3.y)<span class="sc">/</span><span class="dv">2</span>, <span class="at">color =</span> reason) ) <span class="sc">+</span></span>
@@ -804,13 +809,14 @@ G3.y        0.475956497 -0.071452010  0.82541432  0.89430982  1.000000000</code>
 </div>
 </div>
 </div>
+<p>Looks like more variance at school MS.</p>
 <p><strong>Faceted Scatterplot #2</strong></p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb49"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb49-1"><a href="#cb49-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(final_d1, <span class="fu">aes</span>(<span class="at">x =</span> Medu, <span class="at">y =</span> (G3.x<span class="sc">+</span>G3.y)<span class="sc">/</span><span class="dv">2</span>, <span class="at">color =</span> sex)) <span class="sc">+</span></span>
 <span id="cb49-2"><a href="#cb49-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>(<span class="at">position=</span><span class="st">"jitter"</span>) <span class="sc">+</span></span>
 <span id="cb49-3"><a href="#cb49-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(</span>
 <span id="cb49-4"><a href="#cb49-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">title =</span> <span class="st">"Scatterplot of G3.x vs. Male Education with Sex, Faceted by Reason"</span>,</span>
-<span id="cb49-5"><a href="#cb49-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">x =</span> <span class="st">"Age"</span>,</span>
+<span id="cb49-5"><a href="#cb49-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">x =</span> <span class="st">"Male Education Level"</span>,</span>
 <span id="cb49-6"><a href="#cb49-6" aria-hidden="true" tabindex="-1"></a>    <span class="at">y =</span> <span class="st">"G3"</span>,</span>
 <span id="cb49-7"><a href="#cb49-7" aria-hidden="true" tabindex="-1"></a>    <span class="at">color =</span> <span class="st">"Sex"</span></span>
 <span id="cb49-8"><a href="#cb49-8" aria-hidden="true" tabindex="-1"></a>    ) <span class="sc">+</span></span>
@@ -823,6 +829,7 @@ G3.y        0.475956497 -0.071452010  0.82541432  0.89430982  1.000000000</code>
 </div>
 </div>
 </div>
+<p>Students favor reputation and course.</p>
 <p><strong>Faceting Two Categorical Variables</strong></p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb50"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb50-1"><a href="#cb50-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(final_d1, <span class="fu">aes</span>(<span class="at">x =</span> age, <span class="at">y =</span> (G3.x<span class="sc">+</span>G3.y)<span class="sc">/</span><span class="dv">2</span>, <span class="at">color =</span> sex)) <span class="sc">+</span></span>
@@ -842,6 +849,7 @@ G3.y        0.475956497 -0.071452010  0.82541432  0.89430982  1.000000000</code>
 </div>
 </div>
 </div>
+<p>Less males at MS.</p>
 
 
 </section>
